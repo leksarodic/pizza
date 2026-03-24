@@ -82,7 +82,7 @@ There is no countdown timer, no fail state for being slow, and no racing pressur
 
 ## Editing the world yourself
 
-The main file for hand-crafting the city is [`src/world/worldBlueprint.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/world/worldBlueprint.js).
+The main file for hand-crafting the city is [`src/world/worldBlueprint.js`](src/world/worldBlueprint.js).
 
 This is the file you should edit when you want to add or change:
 
@@ -105,12 +105,12 @@ Useful blueprint sections:
 - `WORLD_BLUEPRINT.deliveryDestinations`
 - `WORLD_BLUEPRINT.billboards`
 
-The rendering layer in [`src/world/CityWorld.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/world/CityWorld.js) now reads from that blueprint instead of hardcoding most of the map.
+The rendering layer in [`src/world/CityWorld.js`](src/world/CityWorld.js) now reads from that blueprint instead of hardcoding most of the map.
 
 ### Adding image ads
 
 1. Put your image in `public/ads/`
-2. In [`src/world/worldBlueprint.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/world/worldBlueprint.js), set a billboard like:
+2. In [`src/world/worldBlueprint.js`](src/world/worldBlueprint.js), set a billboard like:
 
 ```js
 {
@@ -153,7 +153,7 @@ http://localhost:5173/?room=late-night-block
 
 ## GitHub Pages deployment
 
-The workflow in [`.github/workflows/deploy.yml`](/Users/leksarodic/Documents/Aleksa/AI/pizza/.github/workflows/deploy.yml) builds and deploys the game on pushes to `main`.
+The workflow in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) builds and deploys the game on pushes to `main`.
 
 ### Required repository setting
 
@@ -168,7 +168,7 @@ After that, push to `main` or rerun the workflow.
 
 ### Base path
 
-[`vite.config.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/vite.config.js) uses relative asset paths for GitHub Actions builds so the static bundle works more reliably under GitHub Pages repository subpaths.
+[`vite.config.js`](vite.config.js) uses relative asset paths for GitHub Actions builds so the static bundle works more reliably under GitHub Pages repository subpaths.
 
 ### Correct URL to open
 
@@ -188,17 +188,17 @@ If you open the root domain for a project site, the browser may try to load the 
 
 ### 404 fallback
 
-The repository also includes [`404.html`](/Users/leksarodic/Documents/Aleksa/AI/pizza/404.html), which redirects unknown Pages routes back to the project root. This helps when someone opens an incorrect subpath or refreshes a non-root URL.
+The repository also includes [`404.html`](404.html), which redirects unknown Pages routes back to the project root. This helps when someone opens an incorrect subpath or refreshes a non-root URL.
 
 ## Main files to know
 
-- [`src/main.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/main.js)
-- [`src/core/GameApp.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/core/GameApp.js)
-- [`src/world/worldBlueprint.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/world/worldBlueprint.js)
-- [`src/world/CityWorld.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/world/CityWorld.js)
-- [`src/player/CarController.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/player/CarController.js)
-- [`src/delivery/DeliveryManager.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/delivery/DeliveryManager.js)
-- [`src/network/MultiplayerClient.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/network/MultiplayerClient.js)
+- [`src/main.js`](src/main.js)
+- [`src/core/GameApp.js`](src/core/GameApp.js)
+- [`src/world/worldBlueprint.js`](src/world/worldBlueprint.js)
+- [`src/world/CityWorld.js`](src/world/CityWorld.js)
+- [`src/player/CarController.js`](src/player/CarController.js)
+- [`src/delivery/DeliveryManager.js`](src/delivery/DeliveryManager.js)
+- [`src/network/MultiplayerClient.js`](src/network/MultiplayerClient.js)
 
 ## Development log
 
