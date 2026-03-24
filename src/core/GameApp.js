@@ -8,6 +8,7 @@ import { GameHud } from '../ui/GameHud.js';
 import { DeliveryManager } from '../delivery/DeliveryManager.js';
 import { MultiplayerClient } from '../network/MultiplayerClient.js';
 import { RemotePlayers } from '../network/RemotePlayers.js';
+import { MenuOverlay } from '../ui/MenuOverlay.js';
 
 export class GameApp {
   constructor(container) {
@@ -23,6 +24,8 @@ export class GameApp {
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.resizeHandler = () => this.onResize();
     this.input = new InputController();
+    this.isStarted = false;
+    this.isPaused = false;
   }
 
   start() {
@@ -83,12 +86,28 @@ export class GameApp {
     this.hud.setStatus({
       detail: 'Pick up deliveries when you want them, or just wander through the districts at your own pace.',
     });
+    this.menu = new MenuOverlay(this.shell, {
+      onStart: () => this.startDriving(),
+      onResume: () => this.resumeDriving(),
+    });
+    this.menu.showStart();
   }
 
   update() {
     const delta = Math.min(this.clock.getDelta(), 1 / 20);
     const elapsed = this.clock.getElapsedTime();
     const inputState = this.input.getState();
+
+    if (inputState.pause && this.isStarted) {
+      this.isPaused ? this.resumeDriving() : this.pauseDriving();
+    }
+
+    if (!this.isStarted || this.isPaused) {
+      this.remotePlayers.update(this.multiplayer.getRemoteStates(), delta);
+      this.hud.setPresenceState(this.multiplayer.getPresenceSummary());
+      this.renderer.render(this.scene, this.camera);
+      return;
+    }
 
     if (inputState.reset) {
       this.player.reset(this.world.getSpawnPoint());
@@ -119,6 +138,22 @@ export class GameApp {
     this.hud.setDeliveryState(deliveryState);
     this.hud.setPresenceState(this.multiplayer.getPresenceSummary());
     this.renderer.render(this.scene, this.camera);
+  }
+
+  startDriving() {
+    this.isStarted = true;
+    this.isPaused = false;
+    this.menu.hide();
+  }
+
+  pauseDriving() {
+    this.isPaused = true;
+    this.menu.showPause();
+  }
+
+  resumeDriving() {
+    this.isPaused = false;
+    this.menu.hide();
   }
 
   onResize() {

@@ -2,6 +2,7 @@ export class InputController {
   constructor() {
     this.keys = new Set();
     this.resetPressed = false;
+    this.pausePressed = false;
     this.onKeyDown = (event) => this.handleKey(event, true);
     this.onKeyUp = (event) => this.handleKey(event, false);
 
@@ -16,6 +17,9 @@ export class InputController {
       this.keys.add(code);
       if (code === 'KeyR') {
         this.resetPressed = true;
+      }
+      if (code === 'Escape') {
+        this.pausePressed = true;
       }
       return;
     }
@@ -35,10 +39,12 @@ export class InputController {
       brake: this.keys.has('ArrowDown') || this.keys.has('KeyS'),
       steer: this.getAxis(['ArrowLeft', 'KeyA'], ['ArrowRight', 'KeyD']),
       interact: this.keys.has('KeyE'),
+      pause: this.pausePressed,
       reset: this.resetPressed,
     };
 
     this.resetPressed = false;
+    this.pausePressed = false;
     return state;
   }
 }
