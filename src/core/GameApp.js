@@ -9,6 +9,7 @@ import { DeliveryManager } from '../delivery/DeliveryManager.js';
 import { MultiplayerClient } from '../network/MultiplayerClient.js';
 import { RemotePlayers } from '../network/RemotePlayers.js';
 import { MenuOverlay } from '../ui/MenuOverlay.js';
+import { WorldEditTool } from '../ui/WorldEditTool.js';
 
 export class GameApp {
   constructor(container) {
@@ -96,6 +97,7 @@ export class GameApp {
       onStart: () => this.startDriving(),
       onResume: () => this.resumeDriving(),
     });
+    this.worldEditTool = new WorldEditTool(this.shell);
     this.menu.showStart();
   }
 
@@ -146,6 +148,7 @@ export class GameApp {
     });
     this.hud.setDeliveryState(deliveryState);
     this.hud.setPresenceState(this.multiplayer.getPresenceSummary());
+    this.worldEditTool.updatePlayerPosition(telemetry.position);
     this.renderer.render(this.scene, this.camera);
   }
 
