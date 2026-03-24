@@ -17,6 +17,11 @@ export class GameHud {
         <div class="status-card">
           <span class="status-label">Speed</span>
           <strong data-role="speed">0 km/h</strong>
+          <div class="steer-meter">
+            <span class="steer-arrow" data-role="left-arrow">◀</span>
+            <span class="steer-center">Steer</span>
+            <span class="steer-arrow" data-role="right-arrow">▶</span>
+          </div>
         </div>
         <div class="status-card">
           <span class="status-label">Controls</span>
@@ -42,6 +47,8 @@ export class GameHud {
     this.prompt = this.root.querySelector('[data-role="prompt"]');
     this.district = this.root.querySelector('[data-role="district"]');
     this.speed = this.root.querySelector('[data-role="speed"]');
+    this.leftArrow = this.root.querySelector('[data-role="left-arrow"]');
+    this.rightArrow = this.root.querySelector('[data-role="right-arrow"]');
     this.cargo = this.root.querySelector('[data-role="cargo"]');
     this.destination = this.root.querySelector('[data-role="destination"]');
     this.presence = this.root.querySelector('[data-role="presence"]');
@@ -51,9 +58,11 @@ export class GameHud {
     this.detail.textContent = detail;
   }
 
-  setTelemetry({ district, speedKmh }) {
+  setTelemetry({ district, speedKmh, steer = 0 }) {
     this.district.textContent = district;
     this.speed.textContent = `${speedKmh} km/h`;
+    this.leftArrow.classList.toggle('is-active', steer < -0.2);
+    this.rightArrow.classList.toggle('is-active', steer > 0.2);
   }
 
   setDeliveryState(state) {

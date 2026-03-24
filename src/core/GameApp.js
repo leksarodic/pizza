@@ -40,6 +40,8 @@ export class GameApp {
   setupRenderer() {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 1.05;
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.domElement.className = 'game-canvas';
@@ -67,6 +69,10 @@ export class GameApp {
     sun.shadow.camera.top = 100;
     sun.shadow.camera.bottom = -100;
     this.scene.add(sun);
+
+    const fillLight = new THREE.DirectionalLight(0x7db6ff, 0.35);
+    fillLight.position.set(-28, 20, -40);
+    this.scene.add(fillLight);
   }
 
   setupGameplay() {
@@ -134,7 +140,10 @@ export class GameApp {
       hasPizza: deliveryState.hasPizza,
     }, elapsed);
     this.remotePlayers.update(this.multiplayer.getRemoteStates(), delta);
-    this.hud.setTelemetry(telemetry);
+    this.hud.setTelemetry({
+      ...telemetry,
+      steer: inputState.steer,
+    });
     this.hud.setDeliveryState(deliveryState);
     this.hud.setPresenceState(this.multiplayer.getPresenceSummary());
     this.renderer.render(this.scene, this.camera);

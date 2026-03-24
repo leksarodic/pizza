@@ -90,6 +90,18 @@ function buildCarMesh() {
   const bodyMaterial = new THREE.MeshStandardMaterial({ color: 0xdf6d3e, roughness: 0.72 });
   const trimMaterial = new THREE.MeshStandardMaterial({ color: 0xf8e7c1, roughness: 0.85 });
   const darkMaterial = new THREE.MeshStandardMaterial({ color: 0x263244, roughness: 0.45 });
+  const glowMaterial = new THREE.MeshStandardMaterial({
+    color: 0xffd8a1,
+    emissive: 0xffb865,
+    emissiveIntensity: 1.2,
+    roughness: 0.35,
+  });
+  const brakeMaterial = new THREE.MeshStandardMaterial({
+    color: 0xff8f7a,
+    emissive: 0xd84f3b,
+    emissiveIntensity: 1.1,
+    roughness: 0.35,
+  });
 
   const base = new THREE.Mesh(new THREE.BoxGeometry(2.4, 0.7, 4.6), bodyMaterial);
   base.position.y = 0.55;
@@ -111,6 +123,14 @@ function buildCarMesh() {
   pizzaBox.castShadow = true;
   car.add(pizzaBox);
 
+  const bumper = new THREE.Mesh(new THREE.BoxGeometry(2.3, 0.24, 0.32), darkMaterial);
+  bumper.position.set(0, 0.48, 2.26);
+  car.add(bumper);
+
+  const rearBumper = bumper.clone();
+  rearBumper.position.z = -2.26;
+  car.add(rearBumper);
+
   const wheelMaterial = new THREE.MeshStandardMaterial({ color: 0x1b1b22, roughness: 0.9 });
   const wheelOffsets = [
     [-1.1, 0.28, -1.45],
@@ -126,6 +146,23 @@ function buildCarMesh() {
     wheel.castShadow = true;
     car.add(wheel);
   }
+
+  for (const x of [-0.74, 0.74]) {
+    const headlight = new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.18, 0.08), glowMaterial);
+    headlight.position.set(x, 0.72, 2.32);
+    car.add(headlight);
+
+    const taillight = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.16, 0.08), brakeMaterial);
+    taillight.position.set(x, 0.72, -2.32);
+    car.add(taillight);
+  }
+
+  const stripe = new THREE.Mesh(
+    new THREE.BoxGeometry(0.42, 0.06, 3.5),
+    new THREE.MeshStandardMaterial({ color: 0xf6d385, roughness: 0.7 }),
+  );
+  stripe.position.set(0, 0.93, 0.1);
+  car.add(stripe);
 
   return car;
 }

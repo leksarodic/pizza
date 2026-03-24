@@ -20,12 +20,46 @@ export class CityWorld {
   }
 
   build() {
+    this.addSkyline();
     this.addGround();
     this.addRoads();
     this.addWaterfront();
     this.addDistrictBlocks();
     this.addLandmarks();
     this.addProps();
+  }
+
+  addSkyline() {
+    const skyDome = new THREE.Mesh(
+      new THREE.SphereGeometry(340, 32, 20),
+      new THREE.MeshBasicMaterial({
+        color: 0x274776,
+        side: THREE.BackSide,
+      }),
+    );
+    skyDome.position.y = 40;
+    this.scene.add(skyDome);
+
+    const sunsetDisc = new THREE.Mesh(
+      new THREE.CircleGeometry(16, 32),
+      new THREE.MeshBasicMaterial({ color: 0xffa35d, transparent: true, opacity: 0.34 }),
+    );
+    sunsetDisc.position.set(145, 42, -120);
+    sunsetDisc.lookAt(new THREE.Vector3(0, 42, 0));
+    this.scene.add(sunsetDisc);
+
+    for (let i = 0; i < 80; i += 1) {
+      const star = new THREE.Mesh(
+        new THREE.SphereGeometry(0.28 + (i % 3) * 0.04, 6, 6),
+        new THREE.MeshBasicMaterial({ color: 0xf4e7cb, transparent: true, opacity: 0.45 }),
+      );
+      star.position.set(
+        -180 + (i * 17) % 360,
+        72 + (i % 8) * 9,
+        -170 + (i * 29) % 340,
+      );
+      this.scene.add(star);
+    }
   }
 
   getSpawnPoint() {
@@ -88,6 +122,7 @@ export class CityWorld {
     const roadMaterial = new THREE.MeshStandardMaterial({ color: 0x2a2d33, roughness: 0.96 });
     const stripeMaterial = new THREE.MeshStandardMaterial({ color: 0xe9d5a2, roughness: 0.8 });
     const curbMaterial = new THREE.MeshStandardMaterial({ color: 0x7b7d84, roughness: 1 });
+    const shoulderMaterial = new THREE.MeshStandardMaterial({ color: 0xb9aa95, roughness: 1 });
 
     const roads = [
       { x: 0, z: 0, width: 18, depth: 300 },
@@ -121,6 +156,15 @@ export class CityWorld {
       this.scene.add(curb);
       roadMesh.renderOrder = 1;
 
+      const shoulder = new THREE.Mesh(
+        new THREE.BoxGeometry(road.width + 10, 0.04, road.depth + 10),
+        shoulderMaterial,
+      );
+      shoulder.position.set(road.x, 0.02, road.z);
+      shoulder.receiveShadow = true;
+      this.scene.add(shoulder);
+      shoulder.renderOrder = 0;
+
       const isVertical = road.depth > road.width;
       const stripeLength = isVertical ? road.depth - 8 : road.width - 8;
       const stripe = new THREE.Mesh(
@@ -129,6 +173,8 @@ export class CityWorld {
       );
       stripe.position.set(road.x, 0.09, road.z);
       this.scene.add(stripe);
+
+      addRoadEdgeMarks(this.scene, road, isVertical);
     }
   }
 
@@ -308,6 +354,16 @@ export class CityWorld {
     sculpture.position.set(0, 3, 48);
     sculpture.castShadow = true;
     this.scene.add(sculpture);
+
+    for (const x of [-4, 4]) {
+      const planter = new THREE.Mesh(
+        new THREE.CylinderGeometry(1.2, 1.4, 0.9, 8),
+        new THREE.MeshStandardMaterial({ color: 0xa27658, roughness: 1 }),
+      );
+      planter.position.set(x, 0.45, 54);
+      planter.receiveShadow = true;
+      this.scene.add(planter);
+    }
   }
 
   addRiverPier() {
@@ -341,6 +397,11 @@ export class CityWorld {
     ]);
     addTrashBins(this.scene, [[-10, 38], [10, 38], [54, 42], [74, -14], [-94, -38]]);
     addFenceRow(this.scene, 44, -120, 124);
+    addCrosswalks(this.scene, [
+      { x: 0, z: 84, width: 8, depth: 18, horizontal: true },
+      { x: 72, z: 12, width: 8, depth: 16, horizontal: true },
+      { x: -72, z: -72, width: 8, depth: 16, horizontal: true },
+    ]);
   }
 }
 
@@ -449,6 +510,43 @@ function addSigns(scene, positions) {
     sign.position.set(x, 2.15, z);
     sign.castShadow = true;
     scene.add(sign);
+  }
+}
+
+function addRoadEdgeMarks(scene, road, isVertical) {
+  const paintMaterial = new THREE.MeshStandardMaterial({ color: 0xf6efe0, roughness: 0.85 });
+  const edgeOffset = isVertical ? road.width / 2 - 1.2 : road.depth / 2 - 1.2;
+
+  for (const sign of [-1, 1]) {
+    const mark = new THREE.Mesh(
+      new THREE.BoxGeometry(isVertical ? 0.22 : road.width - 6, 0.05, isVertical ? road.depth - 6 : 0.22),
+      paintMaterial,
+    );
+    mark.position.set(
+      road.x + (isVertical ? sign * edgeOffset : 0),
+      0.08,
+      road.z + (isVertical ? 0 : sign * edgeOffset),
+    );
+    scene.add(mark);
+  }
+}
+
+function addCrosswalks(scene, crossings) {
+  const material = new THREE.MeshStandardMaterial({ color: 0xf3efe6, roughness: 0.82 });
+
+  for (const crossing of crossings) {
+    for (let i = -2; i <= 2; i += 1) {
+      const stripe = new THREE.Mesh(
+        new THREE.BoxGeometry(crossing.horizontal ? 0.9 : crossing.width, 0.05, crossing.horizontal ? crossing.depth : 0.9),
+        material,
+      );
+      stripe.position.set(
+        crossing.x + (crossing.horizontal ? i * 1.5 : 0),
+        0.1,
+        crossing.z + (crossing.horizontal ? 0 : i * 1.5),
+      );
+      scene.add(stripe);
+    }
   }
 }
 
