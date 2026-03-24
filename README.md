@@ -34,6 +34,26 @@ Pizza Afterglow is a calm 3D browser game prototype about casually driving a piz
 - `src/network/` multiplayer room sync and remote player smoothing
 - `src/ui/` HUD and menu overlays
 
+## Crafting the world yourself
+
+The main file for hand-authoring the city is [`src/world/worldBlueprint.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/world/worldBlueprint.js).
+
+That file is meant to be your editable city sheet:
+
+- add or resize roads in `WORLD_BLUEPRINT.roads`
+- place new buildings in `WORLD_BLUEPRINT.buildingPlots`
+- add custom pizza places in `WORLD_BLUEPRINT.pizzaPlaces`
+- add delivery points in `WORLD_BLUEPRINT.deliveryDestinations`
+- place lamps, benches, trees, parked cars, and fences in the prop arrays
+- add ad boards in `WORLD_BLUEPRINT.billboards`
+
+For image ads later:
+
+1. Put the image inside `public/ads/`
+2. Set `image: '/ads/your-file.png'` on a billboard in the blueprint
+
+The renderer in [`src/world/CityWorld.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/world/CityWorld.js) now reads from that blueprint instead of hardcoding most city content directly.
+
 ## Local setup
 
 1. Install dependencies:

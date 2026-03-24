@@ -1,13 +1,11 @@
 import * as THREE from 'three';
+import { WORLD_BLUEPRINT, vectorFrom } from '../world/worldBlueprint.js';
 
-const SHOP_POSITION = new THREE.Vector3(0, 0, 92);
-const destinations = [
-  { name: 'Riverside Loft', district: 'Waterfront', position: new THREE.Vector3(68, 0, 86) },
-  { name: 'Maple Court', district: 'Residential', position: new THREE.Vector3(-104, 0, -72) },
-  { name: 'Foundry Office', district: 'Industry', position: new THREE.Vector3(90, 0, -108) },
-  { name: 'Hilltop Overlook', district: 'Hilltop', position: new THREE.Vector3(-104, 0, 112) },
-  { name: 'Park Kiosk', district: 'Central Park', position: new THREE.Vector3(18, 0, 10) },
-];
+const SHOP_POSITION = vectorFrom(WORLD_BLUEPRINT.pizzaPlaces[0]);
+const destinations = WORLD_BLUEPRINT.deliveryDestinations.map((destination) => ({
+  ...destination,
+  position: vectorFrom(destination.position),
+}));
 
 export class DeliveryManager {
   constructor(scene, occluders = []) {
