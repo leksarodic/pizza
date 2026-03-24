@@ -168,7 +168,23 @@ After that, push to `main` or rerun the workflow.
 
 ### Base path
 
-[`vite.config.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/vite.config.js) automatically sets the correct repository base path during GitHub Actions builds so assets load correctly on Pages.
+[`vite.config.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/vite.config.js) uses relative asset paths for GitHub Actions builds so the static bundle works more reliably under GitHub Pages repository subpaths.
+
+### Correct URL to open
+
+If this repository is named `pizza`, the deployed site URL is usually:
+
+```text
+https://leksarodic.github.io/pizza/
+```
+
+Not:
+
+```text
+https://leksarodic.github.io/
+```
+
+If you open the root domain for a project site, the browser may try to load the wrong files such as `/src/main.js` and show a MIME type error.
 
 ## Main files to know
 
