@@ -1,5 +1,10 @@
 import * as THREE from 'three';
-import { CAMERA_FOV, SKY_BOTTOM, SKY_TOP } from './config.js';
+import { CAMERA_FOV, SKY_COLORS } from './config.js';
+import { CityWorld } from '../world/CityWorld.js';
+import { InputController } from '../player/InputController.js';
+import { CarController } from '../player/CarController.js';
+import { FollowCamera } from '../player/FollowCamera.js';
+import { GameHud } from '../ui/GameHud.js';
 
 export class GameApp {
   constructor(container) {
@@ -14,12 +19,13 @@ export class GameApp {
     );
     this.renderer = new THREE.WebGLRenderer({ antialias: true });
     this.resizeHandler = () => this.onResize();
+    this.input = new InputController();
   }
 
   start() {
     this.setupRenderer();
     this.setupScene();
-    this.mountUi();
+    this.setupGameplay();
     this.onResize();
     window.addEventListener('resize', this.resizeHandler);
     this.renderer.setAnimationLoop(() => this.update());
@@ -29,6 +35,7 @@ export class GameApp {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.shadowMap.enabled = true;
+    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.domElement.className = 'game-canvas';
 
     const shell = document.createElement('div');
@@ -39,81 +46,52 @@ export class GameApp {
   }
 
   setupScene() {
-    this.scene.fog = new THREE.Fog(SKY_TOP, 60, 220);
+    this.scene.background = new THREE.Color(SKY_COLORS.middle);
+    this.scene.fog = new THREE.Fog(SKY_COLORS.top, 70, 240);
 
-    const hemiLight = new THREE.HemisphereLight(SKY_BOTTOM, 0x1f2440, 1.8);
+    const hemiLight = new THREE.HemisphereLight(SKY_COLORS.bottom, 0x182238, 1.9);
     this.scene.add(hemiLight);
 
     const sun = new THREE.DirectionalLight(0xffd6a8, 2);
-    sun.position.set(24, 34, 16);
+    sun.position.set(32, 36, 24);
     sun.castShadow = true;
     sun.shadow.mapSize.setScalar(1024);
-    sun.shadow.camera.left = -50;
-    sun.shadow.camera.right = 50;
-    sun.shadow.camera.top = 50;
-    sun.shadow.camera.bottom = -50;
+    sun.shadow.camera.left = -100;
+    sun.shadow.camera.right = 100;
+    sun.shadow.camera.top = 100;
+    sun.shadow.camera.bottom = -100;
     this.scene.add(sun);
-
-    const ground = new THREE.Mesh(
-      new THREE.PlaneGeometry(200, 200),
-      new THREE.MeshStandardMaterial({ color: 0x2c4d37 }),
-    );
-    ground.rotation.x = -Math.PI / 2;
-    ground.receiveShadow = true;
-    this.scene.add(ground);
-
-    const blockMaterial = new THREE.MeshStandardMaterial({ color: 0xc86f4f });
-    for (let x = -2; x <= 2; x += 1) {
-      for (let z = -2; z <= 2; z += 1) {
-        if ((x + z) % 2 === 0) {
-          continue;
-        }
-
-        const block = new THREE.Mesh(
-          new THREE.BoxGeometry(8, 6 + Math.abs(x * z), 8),
-          blockMaterial,
-        );
-        block.position.set(x * 14, block.scale.y * 0.5, z * 14);
-        block.castShadow = true;
-        block.receiveShadow = true;
-        this.scene.add(block);
-      }
-    }
-
-    const marker = new THREE.Mesh(
-      new THREE.BoxGeometry(2.6, 1.1, 4.8),
-      new THREE.MeshStandardMaterial({ color: 0xf3b34d }),
-    );
-    marker.position.set(0, 0.7, 20);
-    marker.castShadow = true;
-    this.scene.add(marker);
-    this.marker = marker;
-
-    this.camera.position.set(0, 16, 28);
-    this.camera.lookAt(0, 0, 0);
   }
 
-  mountUi() {
-    const overlay = document.createElement('div');
-    overlay.className = 'overlay';
-    overlay.innerHTML = `
-      <section class="panel">
-        <h1>Pizza Afterglow</h1>
-        <p>
-          Calm city-driving prototype scaffold. Next phases add the explorable map,
-          pizza delivery loop, and lightweight shared-city multiplayer.
-        </p>
-      </section>
-      <div class="status-pill">Scaffold ready</div>
-    `;
+  setupGameplay() {
+    this.world = new CityWorld(this.scene);
+    this.world.build();
 
-    this.shell.append(overlay);
+    this.player = new CarController();
+    this.scene.add(this.player.group);
+
+    this.followCamera = new FollowCamera(this.camera, this.player.group);
+    this.followCamera.snap();
+
+    this.hud = new GameHud(this.shell);
+    this.hud.setStatus({
+      title: 'Cruise the city',
+      detail: 'The pizza loop and shared-city multiplayer arrive in the next phases.',
+    });
   }
 
   update() {
-    const elapsed = this.clock.getElapsedTime();
-    this.marker.position.y = 0.8 + Math.sin(elapsed * 2) * 0.15;
-    this.marker.rotation.y = elapsed * 0.8;
+    const delta = Math.min(this.clock.getDelta(), 1 / 20);
+    const inputState = this.input.getState();
+
+    if (inputState.reset) {
+      this.player.reset(this.world.getSpawnPoint());
+      this.followCamera.snap();
+    }
+
+    this.player.update(delta, inputState, this.world);
+    this.followCamera.update(delta);
+    this.hud.setTelemetry(this.player.getTelemetry());
     this.renderer.render(this.scene, this.camera);
   }
 
