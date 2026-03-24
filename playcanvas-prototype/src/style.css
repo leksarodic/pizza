@@ -1,0 +1,102 @@
+:root {
+  color-scheme: dark;
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  background:
+    radial-gradient(circle at top, rgba(255, 170, 110, 0.22), transparent 28%),
+    linear-gradient(180deg, #17233b 0%, #09101d 100%);
+  color: #f7efe3;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#app {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+.prototype-shell {
+  position: relative;
+  min-height: 100vh;
+}
+
+.prototype-shell canvas {
+  display: block;
+  width: 100%;
+  height: 100vh;
+}
+
+.prototype-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 24px;
+  pointer-events: none;
+}
+
+.prototype-card {
+  max-width: 380px;
+  padding: 18px 20px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(19, 25, 42, 0.82), rgba(7, 11, 20, 0.72));
+  border: 1px solid rgba(255, 236, 211, 0.12);
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(16px);
+}
+
+.prototype-kicker,
+.prototype-title,
+.prototype-copy,
+.prototype-pill {
+  margin: 0;
+}
+
+.prototype-kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.72rem;
+  color: rgba(255, 222, 186, 0.78);
+}
+
+.prototype-title {
+  margin-top: 8px;
+  font-size: clamp(1.5rem, 2.5vw, 2.2rem);
+  line-height: 1.08;
+}
+
+.prototype-copy {
+  margin-top: 10px;
+  line-height: 1.55;
+  color: rgba(247, 239, 227, 0.8);
+}
+
+.prototype-status {
+  display: grid;
+  gap: 12px;
+}
+
+.prototype-pill {
+  padding: 12px 14px;
+  border-radius: 999px;
+  background: rgba(244, 138, 74, 0.16);
+  border: 1px solid rgba(255, 204, 155, 0.16);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+}
+
+@media (max-width: 720px) {
+  .prototype-overlay {
+    flex-direction: column;
+    gap: 12px;
+    padding: 16px;
+  }
+}
