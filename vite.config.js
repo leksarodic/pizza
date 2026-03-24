@@ -11,4 +11,14 @@ function getBasePath() {
 
 export default defineConfig({
   base: getBasePath(),
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          three: ['three'],
+          network: ['yjs', 'y-webrtc'],
+        },
+      },
+    },
+  },
 });
