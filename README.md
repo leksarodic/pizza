@@ -1,84 +1,54 @@
 # Pizza Afterglow
 
-Pizza Afterglow is a calm 3D browser game prototype about casually driving a pizza car through a stylized evening city. Deliveries are there to gently guide exploration, not to create pressure. You can ignore the next order for a while, take the scenic route, and just enjoy the shared city atmosphere.
+Pizza Afterglow is a calm 3D browser game prototype about driving a small pizza car through a stylized evening city. The goal is not speed or pressure. You can cruise, explore, pick up a pizza when you feel like it, and share the city with a few other players.
 
-## MVP features
+## What is in the prototype
 
-- Third-person arcade-style car driving with forgiving handling
-- Medium-sized city with multiple districts:
-  - downtown blocks
-  - residential neighborhood
-  - central park
-  - waterfront promenade
-  - industrial yard
-  - hilltop overlook
-- Pizza shop hub with optional pickup and delivery loop
-- Simple destination beacons and on-screen guidance
-- Lightweight WebRTC multiplayer presence with visible remote cars and player labels
+- Third-person arcade driving with a forgiving camera
+- Open city with downtown, residential streets, park, waterfront, industrial area, and hilltop
+- Optional pizza pickup and delivery loop with no timer
+- Lightweight browser multiplayer presence
 - Calm start menu, pause menu, HUD, and reset action
-- Static Vite build configured for GitHub Pages deployment
+- Static frontend build that works with GitHub Pages
 
-## Tech stack
+## Quickstart
 
-- Vite for local development and static production builds
-- Three.js for rendering
-- Yjs + `y-webrtc` for lightweight browser-to-browser room sync
-- Vanilla ES modules with a modular feature layout
+### Requirements
 
-## Project structure
+- Node.js 20+ recommended
+- npm
 
-- `src/core/` bootstrap, config, main app loop
-- `src/world/` city layout, districts, props, landmarks
-- `src/player/` local input, car controller, follow camera
-- `src/delivery/` pizza hub and delivery progression
-- `src/network/` multiplayer room sync and remote player smoothing
-- `src/ui/` HUD and menu overlays
-
-## Crafting the world yourself
-
-The main file for hand-authoring the city is [`src/world/worldBlueprint.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/world/worldBlueprint.js).
-
-That file is meant to be your editable city sheet:
-
-- add or resize roads in `WORLD_BLUEPRINT.roads`
-- place new buildings in `WORLD_BLUEPRINT.buildingPlots`
-- add custom pizza places in `WORLD_BLUEPRINT.pizzaPlaces`
-- add delivery points in `WORLD_BLUEPRINT.deliveryDestinations`
-- place lamps, benches, trees, parked cars, and fences in the prop arrays
-- add ad boards in `WORLD_BLUEPRINT.billboards`
-
-For image ads later:
-
-1. Put the image inside `public/ads/`
-2. Set `image: '/ads/your-file.png'` on a billboard in the blueprint
-
-The renderer in [`src/world/CityWorld.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/world/CityWorld.js) now reads from that blueprint instead of hardcoding most city content directly.
-
-## Local setup
-
-1. Install dependencies:
+### Install
 
 ```bash
 npm install
 ```
 
-2. Start the local dev server:
+### Run locally
 
 ```bash
 npm run dev
 ```
 
-3. Build the static production bundle:
+Then open the local Vite URL shown in the terminal, usually:
+
+```text
+http://localhost:5173/
+```
+
+### Build for production
 
 ```bash
 npm run build
 ```
 
-4. Preview the production build locally if needed:
+### Preview the production build
 
 ```bash
 npm run preview
 ```
+
+The preview server will print a local URL in the terminal.
 
 ## Controls
 
@@ -90,67 +60,125 @@ npm run preview
 - `R`: reset the car to the pizza shop if you get stuck
 - `Esc`: pause or resume
 
-## How the delivery loop works
+## How to play
 
-- Start near the pizza shop in the downtown district.
-- Drive close to the glowing pizza shop beacon and press `E` to load an order.
-- Follow the destination marker to a home, kiosk, office, or scenic stop.
-- Press `E` again when you arrive to complete the delivery.
-- After delivery, the city stays open. You can head back for another order whenever you want.
+1. Start the game from the menu.
+2. Drive around freely or head to the pizza shop in downtown.
+3. Press `E` near the pizza shop beacon to load a delivery.
+4. Follow the destination marker to the delivery point.
+5. Press `E` again when you arrive.
+6. Keep exploring or return for another order.
 
-There is no timer, no score pressure, and no fail state for taking the long way around.
+There is no countdown timer, no fail state for being slow, and no racing pressure.
 
-## Multiplayer architecture
+## Project structure
 
-The MVP uses `y-webrtc`, which creates a lightweight WebRTC room directly from the browser while relying on public signaling servers for peer discovery. This keeps the project deployable as static files on GitHub Pages.
+- `src/core/`: app bootstrap, config, render loop
+- `src/world/`: world blueprint, city renderer, world helpers
+- `src/player/`: input, local car controller, follow camera
+- `src/delivery/`: pizza hub and delivery logic
+- `src/network/`: multiplayer sync and remote player smoothing
+- `src/ui/`: HUD and menu overlays
+
+## Editing the world yourself
+
+The main file for hand-crafting the city is [`src/world/worldBlueprint.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/world/worldBlueprint.js).
+
+This is the file you should edit when you want to add or change:
+
+- roads
+- buildings
+- lamps
+- benches
+- parked cars
+- pizza places
+- delivery destinations
+- billboards / ads
+- district ranges
+
+Useful blueprint sections:
+
+- `WORLD_BLUEPRINT.roads`
+- `WORLD_BLUEPRINT.buildingPlots`
+- `WORLD_BLUEPRINT.specialBuildings`
+- `WORLD_BLUEPRINT.pizzaPlaces`
+- `WORLD_BLUEPRINT.deliveryDestinations`
+- `WORLD_BLUEPRINT.billboards`
+
+The rendering layer in [`src/world/CityWorld.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/world/CityWorld.js) now reads from that blueprint instead of hardcoding most of the map.
+
+### Adding image ads
+
+1. Put your image in `public/ads/`
+2. In [`src/world/worldBlueprint.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/world/worldBlueprint.js), set a billboard like:
+
+```js
+{
+  x: 56,
+  y: 7,
+  z: 40,
+  width: 7,
+  height: 3.6,
+  postHeight: 4.5,
+  image: '/ads/my-ad.png',
+  text: ''
+}
+```
+
+If `image` is empty, the game will render a simple colored board with text instead.
+
+## Multiplayer
+
+The prototype uses `y-webrtc` and `Yjs` for lightweight browser-to-browser room sync.
 
 ### Current behavior
 
-- Players in the same room automatically appear to each other.
-- Each player broadcasts:
-  - nickname
-  - car position
-  - car rotation
-  - current district
-  - whether a pizza is loaded
-- Remote cars are smoothed client-side with interpolation.
-- The default room is `afterglow-main`.
-- You can join a different session with a query string such as:
+- Players who open the same room can see each other
+- Each player shares nickname, car position, car rotation, district, and pizza state
+- Remote cars are smoothed client-side
+- The default room is `afterglow-main`
+
+You can join a different room with a query string:
 
 ```text
-?room=late-night-block
+http://localhost:5173/?room=late-night-block
 ```
 
-### Tradeoffs
+### Multiplayer tradeoffs
 
-- This is not authoritative multiplayer. Each client owns its own motion.
-- Public signaling makes the prototype easy to ship, but it is less controllable than a custom service.
-- Peer-to-peer connectivity may behave differently across strict NATs or restrictive networks.
-- GitHub Pages can host the game, but it does not host signaling or relay infrastructure.
-
-### Upgrade path
-
-If the project grows beyond MVP, the next steps would be:
-
-- move signaling to a managed service you control
-- add room/lobby UI instead of query-string rooms
-- sync lightweight delivery state per player
-- add reconciliation or a thin authoritative server for shared interactions
+- This is peer-to-peer presence, not authoritative multiplayer
+- It depends on public signaling infrastructure
+- GitHub Pages can host the frontend, but not a custom relay or dedicated backend
+- Some restrictive networks may prevent peers from seeing each other reliably
 
 ## GitHub Pages deployment
 
-The repository includes a workflow at [`.github/workflows/deploy.yml`](/Users/leksarodic/Documents/Aleksa/AI/pizza/.github/workflows/deploy.yml) that builds and deploys the static site whenever code is pushed to `main`.
+The workflow in [`.github/workflows/deploy.yml`](/Users/leksarodic/Documents/Aleksa/AI/pizza/.github/workflows/deploy.yml) builds and deploys the game on pushes to `main`.
 
-### Repository settings required
+### Required repository setting
 
-1. Open GitHub repository settings.
-2. Go to `Pages`.
-3. Set `Source` to `GitHub Actions`.
-4. Push to `main` or manually run the workflow.
+Before the workflow can deploy successfully:
 
-### Pages base path
+1. Open the repository on GitHub
+2. Go to `Settings` → `Pages`
+3. Set `Source` to `GitHub Actions`
+4. Save
 
-[`vite.config.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/vite.config.js) automatically uses the repository name as the base path when the GitHub Actions environment is building the app, so static assets resolve correctly under the repository subpath.
+After that, push to `main` or rerun the workflow.
+
+### Base path
+
+[`vite.config.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/vite.config.js) automatically sets the correct repository base path during GitHub Actions builds so assets load correctly on Pages.
+
+## Main files to know
+
+- [`src/main.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/main.js)
+- [`src/core/GameApp.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/core/GameApp.js)
+- [`src/world/worldBlueprint.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/world/worldBlueprint.js)
+- [`src/world/CityWorld.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/world/CityWorld.js)
+- [`src/player/CarController.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/player/CarController.js)
+- [`src/delivery/DeliveryManager.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/delivery/DeliveryManager.js)
+- [`src/network/MultiplayerClient.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/network/MultiplayerClient.js)
 
 ## Development log
 
@@ -162,25 +190,15 @@ The repository includes a workflow at [`.github/workflows/deploy.yml`](/Users/le
 - `feat: add calm start and pause menus`
 - `chore: install frontend dependencies`
 - `ci: add GitHub Pages deployment workflow`
+- `docs: expand README with setup and deployment notes`
+- `fix: improve camera and driving feel`
+- `feat: polish city visuals and steering HUD`
+- `feat: add editable world blueprint file`
 
-## Expanding the project later
+## Future improvements
 
-### Add more map content
-
-- Extend [`src/world/CityWorld.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/world/CityWorld.js) with new road meshes, landmarks, and district props.
-- Add new district ranges in the district definitions so the HUD reflects new areas.
-- Create more destination points in [`src/delivery/DeliveryManager.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/delivery/DeliveryManager.js).
-
-### Improve the driving model
-
-- Add suspension feel visually without switching to heavy physics.
-- Add gamepad axes in [`src/player/InputController.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/player/InputController.js).
-- Add curb, wall, or traffic-calming collision proxies if the city needs stronger road boundaries.
-- Move the current arcade controller into a tunable config file for per-surface handling.
-
-### Improve multiplayer
-
-- Show room selection in the start menu.
-- Sync emotes, headlights, or lightweight delivery states.
-- Add connection quality feedback and reconnection UI.
-- Move from public WebRTC signaling to a dedicated service when reliability matters more than zero-backend simplicity.
+- Add a visual world editor on top of the blueprint file
+- Add better collisions with curbs and building boundaries
+- Add more pizza shops and district-specific architecture
+- Add gamepad controls
+- Add richer multiplayer state like emotes, lights, or shared delivery markers
