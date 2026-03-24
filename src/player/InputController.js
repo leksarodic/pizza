@@ -34,6 +34,7 @@ export class InputController {
       accelerate: this.keys.has('ArrowUp') || this.keys.has('KeyW'),
       brake: this.keys.has('ArrowDown') || this.keys.has('KeyS'),
       steer: this.getAxis(['ArrowLeft', 'KeyA'], ['ArrowRight', 'KeyD']),
+      interact: this.keys.has('KeyE'),
       reset: this.resetPressed,
     };
 

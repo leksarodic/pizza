@@ -5,6 +5,7 @@ import { InputController } from '../player/InputController.js';
 import { CarController } from '../player/CarController.js';
 import { FollowCamera } from '../player/FollowCamera.js';
 import { GameHud } from '../ui/GameHud.js';
+import { DeliveryManager } from '../delivery/DeliveryManager.js';
 
 export class GameApp {
   constructor(container) {
@@ -72,16 +73,17 @@ export class GameApp {
 
     this.followCamera = new FollowCamera(this.camera, this.player.group);
     this.followCamera.snap();
+    this.delivery = new DeliveryManager(this.scene);
 
     this.hud = new GameHud(this.shell);
     this.hud.setStatus({
-      title: 'Cruise the city',
-      detail: 'The pizza loop and shared-city multiplayer arrive in the next phases.',
+      detail: 'Pick up deliveries when you want them, or just wander through the districts at your own pace.',
     });
   }
 
   update() {
     const delta = Math.min(this.clock.getDelta(), 1 / 20);
+    const elapsed = this.clock.getElapsedTime();
     const inputState = this.input.getState();
 
     if (inputState.reset) {
@@ -91,7 +93,10 @@ export class GameApp {
 
     this.player.update(delta, inputState, this.world);
     this.followCamera.update(delta);
-    this.hud.setTelemetry(this.player.getTelemetry());
+    const telemetry = this.player.getTelemetry();
+    const deliveryState = this.delivery.update(telemetry.position, inputState.interact, elapsed);
+    this.hud.setTelemetry(telemetry);
+    this.hud.setDeliveryState(deliveryState);
     this.renderer.render(this.scene, this.camera);
   }
 

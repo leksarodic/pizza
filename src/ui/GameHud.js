@@ -7,6 +7,7 @@ export class GameHud {
         <p class="eyebrow">Pizza Afterglow</p>
         <h1 class="headline">A calm evening delivery run</h1>
         <p class="muted" data-role="detail"></p>
+        <p class="prompt" data-role="prompt"></p>
       </section>
       <section class="hud-stack">
         <div class="status-card">
@@ -21,13 +22,24 @@ export class GameHud {
           <span class="status-label">Controls</span>
           <strong>WASD / Arrows, R reset</strong>
         </div>
+        <div class="status-card">
+          <span class="status-label">Pizza Load</span>
+          <strong data-role="cargo">No order loaded</strong>
+        </div>
+        <div class="status-card">
+          <span class="status-label">Destination</span>
+          <strong data-role="destination">Pizza shop hub</strong>
+        </div>
       </section>
     `;
 
     container.append(this.root);
     this.detail = this.root.querySelector('[data-role="detail"]');
+    this.prompt = this.root.querySelector('[data-role="prompt"]');
     this.district = this.root.querySelector('[data-role="district"]');
     this.speed = this.root.querySelector('[data-role="speed"]');
+    this.cargo = this.root.querySelector('[data-role="cargo"]');
+    this.destination = this.root.querySelector('[data-role="destination"]');
   }
 
   setStatus({ detail }) {
@@ -37,5 +49,15 @@ export class GameHud {
   setTelemetry({ district, speedKmh }) {
     this.district.textContent = district;
     this.speed.textContent = `${speedKmh} km/h`;
+  }
+
+  setDeliveryState(state) {
+    this.prompt.textContent = state.prompt;
+    this.cargo.textContent = state.hasPizza
+      ? `1 warm order loaded • ${state.completed} delivered`
+      : `No order loaded • ${state.completed} delivered`;
+    this.destination.textContent = state.destination
+      ? `${state.destination.name} (${state.destination.district})`
+      : 'Pizza shop hub';
   }
 }
