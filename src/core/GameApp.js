@@ -6,6 +6,8 @@ import { CarController } from '../player/CarController.js';
 import { FollowCamera } from '../player/FollowCamera.js';
 import { GameHud } from '../ui/GameHud.js';
 import { DeliveryManager } from '../delivery/DeliveryManager.js';
+import { MultiplayerClient } from '../network/MultiplayerClient.js';
+import { RemotePlayers } from '../network/RemotePlayers.js';
 
 export class GameApp {
   constructor(container) {
@@ -74,6 +76,8 @@ export class GameApp {
     this.followCamera = new FollowCamera(this.camera, this.player.group);
     this.followCamera.snap();
     this.delivery = new DeliveryManager(this.scene);
+    this.multiplayer = new MultiplayerClient();
+    this.remotePlayers = new RemotePlayers(this.scene);
 
     this.hud = new GameHud(this.shell);
     this.hud.setStatus({
@@ -95,8 +99,25 @@ export class GameApp {
     this.followCamera.update(delta);
     const telemetry = this.player.getTelemetry();
     const deliveryState = this.delivery.update(telemetry.position, inputState.interact, elapsed);
+    this.multiplayer.updateLocalState({
+      position: {
+        x: telemetry.position.x,
+        y: telemetry.position.y,
+        z: telemetry.position.z,
+      },
+      quaternion: {
+        x: this.player.group.quaternion.x,
+        y: this.player.group.quaternion.y,
+        z: this.player.group.quaternion.z,
+        w: this.player.group.quaternion.w,
+      },
+      district: telemetry.district,
+      hasPizza: deliveryState.hasPizza,
+    }, elapsed);
+    this.remotePlayers.update(this.multiplayer.getRemoteStates(), delta);
     this.hud.setTelemetry(telemetry);
     this.hud.setDeliveryState(deliveryState);
+    this.hud.setPresenceState(this.multiplayer.getPresenceSummary());
     this.renderer.render(this.scene, this.camera);
   }
 

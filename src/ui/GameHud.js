@@ -30,6 +30,10 @@ export class GameHud {
           <span class="status-label">Destination</span>
           <strong data-role="destination">Pizza shop hub</strong>
         </div>
+        <div class="status-card">
+          <span class="status-label">Shared City</span>
+          <strong data-role="presence">Connecting...</strong>
+        </div>
       </section>
     `;
 
@@ -40,6 +44,7 @@ export class GameHud {
     this.speed = this.root.querySelector('[data-role="speed"]');
     this.cargo = this.root.querySelector('[data-role="cargo"]');
     this.destination = this.root.querySelector('[data-role="destination"]');
+    this.presence = this.root.querySelector('[data-role="presence"]');
   }
 
   setStatus({ detail }) {
@@ -59,5 +64,9 @@ export class GameHud {
     this.destination.textContent = state.destination
       ? `${state.destination.name} (${state.destination.district})`
       : 'Pizza shop hub';
+  }
+
+  setPresenceState({ nickname, connectedPlayers, roomName }) {
+    this.presence.textContent = `${nickname} • ${connectedPlayers} online • room ${roomName}`;
   }
 }

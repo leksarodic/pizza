@@ -9,8 +9,9 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "peerjs": "^1.5.5",
-    "three": "^0.179.1"
+    "three": "^0.179.1",
+    "y-webrtc": "^10.3.0",
+    "yjs": "^13.6.27"
   },
   "devDependencies": {
     "vite": "^7.1.3"
