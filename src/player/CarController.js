@@ -8,15 +8,17 @@ export class CarController {
     this.group = buildCarMesh();
     this.velocity = new THREE.Vector3();
     this.forward = new THREE.Vector3(0, 0, 1);
+    this.lateral = new THREE.Vector3();
     this.spawnPoint = new THREE.Vector3(0, 0.35, 92);
+    this.heading = Math.PI;
     this.reset(this.spawnPoint);
   }
 
   update(delta, input, world) {
-    const forward = this.forward.set(0, 0, 1).applyQuaternion(this.group.quaternion);
+    const forward = this.forward.set(0, 0, 1).applyAxisAngle(UP, this.heading);
     const planarVelocity = new THREE.Vector3(this.velocity.x, 0, this.velocity.z);
-    const speed = planarVelocity.dot(forward);
-    const movingBackward = speed < -0.2;
+    const signedSpeed = planarVelocity.dot(forward);
+    const movingBackward = signedSpeed < -0.4;
 
     let acceleration = 0;
     if (input.accelerate) {
@@ -31,17 +33,15 @@ export class CarController {
     const dragFactor = Math.max(0, 1 - CAR_SETTINGS.drag * delta);
     planarVelocity.multiplyScalar(dragFactor);
 
-    const speedRatio = THREE.MathUtils.clamp(planarVelocity.length() / CAR_SETTINGS.maxForwardSpeed, 0, 1);
-    const steerIntensity = THREE.MathUtils.lerp(0.7, 1.15, speedRatio);
+    const speedRatio = THREE.MathUtils.clamp(Math.abs(signedSpeed) / CAR_SETTINGS.maxForwardSpeed, 0, 1);
+    const steerIntensity = THREE.MathUtils.lerp(1.35, 0.7, speedRatio);
     const steerDirection = movingBackward ? -1 : 1;
     const steeringAmount = input.steer * CAR_SETTINGS.steerRate * steerIntensity * steerDirection;
-    this.group.rotation.y -= steeringAmount * delta;
-
-    if (Math.abs(input.steer) < 0.01) {
-      this.group.rotation.y = THREE.MathUtils.damp(this.group.rotation.y, this.group.rotation.y, CAR_SETTINGS.steerReturn, delta);
+    if (Math.abs(signedSpeed) > 0.4 || Math.abs(acceleration) > 0.1) {
+      this.heading -= steeringAmount * delta;
     }
 
-    const lateral = new THREE.Vector3(forward.z, 0, -forward.x);
+    const lateral = this.lateral.set(forward.z, 0, -forward.x);
     const sidewaysSpeed = planarVelocity.dot(lateral);
     planarVelocity.addScaledVector(lateral, -sidewaysSpeed * Math.min(1, CAR_SETTINGS.grip * delta));
 
@@ -58,7 +58,7 @@ export class CarController {
     this.group.position.y = 0.35;
 
     world.constrainPosition(this.group.position);
-    this.group.quaternion.setFromAxisAngle(UP, this.group.rotation.y);
+    this.group.quaternion.setFromAxisAngle(UP, this.heading);
 
     this.telemetry = {
       speedKmh: Math.round(this.velocity.length() * 7.2),
@@ -69,8 +69,9 @@ export class CarController {
 
   reset(spawnPoint = this.spawnPoint) {
     this.group.position.copy(spawnPoint);
-    this.group.rotation.set(0, Math.PI, 0);
-    this.group.quaternion.setFromAxisAngle(UP, this.group.rotation.y);
+    this.heading = Math.PI;
+    this.group.rotation.set(0, 0, 0);
+    this.group.quaternion.setFromAxisAngle(UP, this.heading);
     this.velocity.set(0, 0, 0);
   }
 

@@ -76,9 +76,9 @@ export class GameApp {
     this.player = new CarController();
     this.scene.add(this.player.group);
 
-    this.followCamera = new FollowCamera(this.camera, this.player.group);
+    this.followCamera = new FollowCamera(this.camera, this.player.group, this.world.getCameraOccluders());
     this.followCamera.snap();
-    this.delivery = new DeliveryManager(this.scene);
+    this.delivery = new DeliveryManager(this.scene, this.world.getCameraOccluders());
     this.multiplayer = new MultiplayerClient();
     this.remotePlayers = new RemotePlayers(this.scene);
 

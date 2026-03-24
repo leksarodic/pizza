@@ -10,8 +10,9 @@ const destinations = [
 ];
 
 export class DeliveryManager {
-  constructor(scene) {
+  constructor(scene, occluders = []) {
     this.scene = scene;
+    this.occluders = occluders;
     this.shopPosition = SHOP_POSITION.clone();
     this.currentIndex = -1;
     this.activeDestination = null;
@@ -29,6 +30,7 @@ export class DeliveryManager {
     shopBase.castShadow = true;
     shopBase.receiveShadow = true;
     this.scene.add(shopBase);
+    this.occluders.push(shopBase);
 
     const shopRoof = new THREE.Mesh(
       new THREE.BoxGeometry(10.8, 0.6, 8.8),
@@ -37,6 +39,7 @@ export class DeliveryManager {
     shopRoof.position.set(this.shopPosition.x, 5.2, this.shopPosition.z);
     shopRoof.castShadow = true;
     this.scene.add(shopRoof);
+    this.occluders.push(shopRoof);
 
     const shopSign = new THREE.Mesh(
       new THREE.BoxGeometry(4.2, 1, 0.3),

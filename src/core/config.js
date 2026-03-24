@@ -8,12 +8,11 @@ export const SKY_COLORS = {
 };
 
 export const CAR_SETTINGS = {
-  maxForwardSpeed: 24,
-  maxReverseSpeed: 10,
-  acceleration: 18,
-  braking: 24,
-  drag: 6,
-  steerRate: 1.8,
-  steerReturn: 4,
-  grip: 8,
+  maxForwardSpeed: 32,
+  maxReverseSpeed: 12,
+  acceleration: 24,
+  braking: 30,
+  drag: 4.8,
+  steerRate: 2.6,
+  grip: 10,
 };
