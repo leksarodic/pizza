@@ -8,6 +8,7 @@ export class CityWorld {
     this.scene = scene;
     this.spawnPoint = vectorFrom(WORLD_BLUEPRINT.spawnPoint);
     this.cameraOccluders = [];
+    this.collisionVolumes = [];
   }
 
   build() {
@@ -27,6 +28,48 @@ export class CityWorld {
 
   getCameraOccluders() {
     return this.cameraOccluders;
+  }
+
+  resolveVehicleCollision(position, radius, previousPosition) {
+    let collided = false;
+
+    for (const collider of this.collisionVolumes) {
+      if (collider.type === 'box') {
+        const halfWidth = collider.width / 2 + radius;
+        const halfDepth = collider.depth / 2 + radius;
+        const dx = position.x - collider.x;
+        const dz = position.z - collider.z;
+
+        if (Math.abs(dx) < halfWidth && Math.abs(dz) < halfDepth) {
+          const overlapX = halfWidth - Math.abs(dx);
+          const overlapZ = halfDepth - Math.abs(dz);
+
+          if (overlapX < overlapZ) {
+            position.x += dx >= 0 ? overlapX : -overlapX;
+          } else {
+            position.z += dz >= 0 ? overlapZ : -overlapZ;
+          }
+
+          collided = true;
+        }
+      }
+
+      if (collider.type === 'circle') {
+        const dx = position.x - collider.x;
+        const dz = position.z - collider.z;
+        const distance = Math.hypot(dx, dz);
+        const minDistance = collider.radius + radius;
+
+        if (distance < minDistance) {
+          const angle = distance > 0.001 ? Math.atan2(dz, dx) : Math.atan2(position.z - previousPosition.z, position.x - previousPosition.x);
+          position.x = collider.x + Math.cos(angle) * minDistance;
+          position.z = collider.z + Math.sin(angle) * minDistance;
+          collided = true;
+        }
+      }
+    }
+
+    return collided;
   }
 
   constrainPosition(position) {
@@ -233,6 +276,13 @@ export class CityWorld {
     building.position.set(plot.x, 0, plot.z);
     this.scene.add(building);
     this.cameraOccluders.push(base);
+    this.collisionVolumes.push({
+      type: 'box',
+      x: plot.x,
+      z: plot.z,
+      width: plot.width + 1,
+      depth: plot.depth + 1,
+    });
   }
 
   addLandmarks() {
@@ -267,6 +317,13 @@ export class CityWorld {
     base.castShadow = true;
     this.scene.add(base);
     this.cameraOccluders.push(base);
+    this.collisionVolumes.push({
+      type: 'box',
+      x: building.base.x,
+      z: building.base.z,
+      width: building.base.width + 1,
+      depth: building.base.depth + 1,
+    });
 
     const canopy = new THREE.Mesh(
       new THREE.BoxGeometry(building.canopy.width, building.canopy.height, building.canopy.depth),
@@ -297,6 +354,13 @@ export class CityWorld {
     mesh.receiveShadow = true;
     this.scene.add(mesh);
     this.cameraOccluders.push(mesh);
+    this.collisionVolumes.push({
+      type: 'box',
+      x: unit.x,
+      z: unit.z,
+      width: unit.width + 1,
+      depth: unit.depth + 1,
+    });
   }
 
   addPizzaPlace(shop) {
@@ -309,6 +373,13 @@ export class CityWorld {
     base.receiveShadow = true;
     this.scene.add(base);
     this.cameraOccluders.push(base);
+    this.collisionVolumes.push({
+      type: 'box',
+      x: shop.x,
+      z: shop.z,
+      width: shop.width + 1,
+      depth: shop.depth + 1,
+    });
 
     const roof = new THREE.Mesh(
       new THREE.BoxGeometry(shop.width + 0.8, 0.6, shop.depth + 0.8),
@@ -333,7 +404,7 @@ export class CityWorld {
   }
 
   addProps() {
-    WORLD_BLUEPRINT.trees.forEach((cluster) => addTreeCluster(this.scene, cluster.xs, cluster.zs, cluster.color));
+    WORLD_BLUEPRINT.trees.forEach((cluster) => addTreeCluster(this.scene, this.collisionVolumes, cluster.xs, cluster.zs, cluster.color));
     addStreetlights(this.scene, WORLD_BLUEPRINT.streetlights);
     addBenches(this.scene, WORLD_BLUEPRINT.benches);
     addParkedCars(this.scene, WORLD_BLUEPRINT.parkedCars);
@@ -380,7 +451,7 @@ function brighten(color, amount) {
   return source.lerp(new THREE.Color(0xffffff), amount).getHex();
 }
 
-function addTreeCluster(scene, xs, zs, color) {
+function addTreeCluster(scene, collisionVolumes, xs, zs, color) {
   const trunkMaterial = new THREE.MeshStandardMaterial({ color: 0x6d4a30, roughness: 1 });
   const leafMaterial = new THREE.MeshStandardMaterial({ color, roughness: 1 });
 
@@ -395,6 +466,13 @@ function addTreeCluster(scene, xs, zs, color) {
       crown.position.set(x, 3.2, z);
       crown.castShadow = true;
       scene.add(crown);
+
+      collisionVolumes.push({
+        type: 'circle',
+        x,
+        z,
+        radius: 1.6,
+      });
     });
   });
 }

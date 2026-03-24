@@ -8,7 +8,7 @@ const palettes = {
 };
 
 export const WORLD_BLUEPRINT = {
-  spawnPoint: { x: 0, y: 0.35, z: 92 },
+  spawnPoint: { x: 0, y: 0.35, z: 72 },
   districts: [
     { name: 'Hilltop', minX: -160, maxX: -40, minZ: 55, maxZ: 160 },
     { name: 'Downtown', minX: -40, maxX: 46, minZ: 36, maxZ: 150 },

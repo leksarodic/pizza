@@ -20,37 +20,6 @@ export class DeliveryManager {
   }
 
   createLandmarks() {
-    const shopBase = new THREE.Mesh(
-      new THREE.BoxGeometry(10, 5, 8),
-      new THREE.MeshStandardMaterial({ color: 0xc76b4d, roughness: 0.95 }),
-    );
-    shopBase.position.set(this.shopPosition.x, 2.5, this.shopPosition.z);
-    shopBase.castShadow = true;
-    shopBase.receiveShadow = true;
-    this.scene.add(shopBase);
-    this.occluders.push(shopBase);
-
-    const shopRoof = new THREE.Mesh(
-      new THREE.BoxGeometry(10.8, 0.6, 8.8),
-      new THREE.MeshStandardMaterial({ color: 0x4b2c34, roughness: 0.85 }),
-    );
-    shopRoof.position.set(this.shopPosition.x, 5.2, this.shopPosition.z);
-    shopRoof.castShadow = true;
-    this.scene.add(shopRoof);
-    this.occluders.push(shopRoof);
-
-    const shopSign = new THREE.Mesh(
-      new THREE.BoxGeometry(4.2, 1, 0.3),
-      new THREE.MeshStandardMaterial({
-        color: 0xffd6a2,
-        emissive: 0xf48a4a,
-        emissiveIntensity: 1.1,
-        roughness: 0.45,
-      }),
-    );
-    shopSign.position.set(this.shopPosition.x, 4.4, this.shopPosition.z + 4.2);
-    this.scene.add(shopSign);
-
     this.shopBeacon = createBeacon(0xffb366, 5.5, 0.2);
     this.shopBeacon.position.copy(this.shopPosition).add(new THREE.Vector3(0, 1.2, 0));
     this.scene.add(this.shopBeacon);
@@ -80,12 +49,12 @@ export class DeliveryManager {
       : Infinity;
 
     let prompt = null;
-    if (!this.hasPizza && shopDistance < 9) {
+    if (!this.hasPizza && shopDistance < 14) {
       prompt = 'Press E at the pizza shop to load the next order';
       if (interactPressed) {
         this.assignNextDelivery();
       }
-    } else if (this.hasPizza && this.activeDestination && destinationDistance < 8) {
+    } else if (this.hasPizza && this.activeDestination && destinationDistance < 10) {
       prompt = `Press E to deliver to ${this.activeDestination.name}`;
       if (interactPressed) {
         this.completeDelivery();

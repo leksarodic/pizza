@@ -9,7 +9,7 @@ export class CarController {
     this.velocity = new THREE.Vector3();
     this.forward = new THREE.Vector3(0, 0, 1);
     this.lateral = new THREE.Vector3();
-    this.spawnPoint = new THREE.Vector3(0, 0.35, 92);
+    this.spawnPoint = new THREE.Vector3(0, 0.35, 72);
     this.heading = Math.PI;
     this.reset(this.spawnPoint);
   }
@@ -54,10 +54,15 @@ export class CarController {
     planarVelocity.copy(forward.multiplyScalar(forwardSpeed)).addScaledVector(lateral, sidewaysRetained);
 
     this.velocity.set(planarVelocity.x, 0, planarVelocity.z);
+    const previousPosition = this.group.position.clone();
     this.group.position.addScaledVector(this.velocity, delta);
     this.group.position.y = 0.35;
 
     world.constrainPosition(this.group.position);
+    const collided = world.resolveVehicleCollision(this.group.position, 1.4, previousPosition);
+    if (collided) {
+      this.velocity.multiplyScalar(0.15);
+    }
     this.group.quaternion.setFromAxisAngle(UP, this.heading);
 
     this.telemetry = {
