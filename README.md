@@ -186,6 +186,10 @@ https://leksarodic.github.io/
 
 If you open the root domain for a project site, the browser may try to load the wrong files such as `/src/main.js` and show a MIME type error.
 
+### 404 fallback
+
+The repository also includes [`404.html`](/Users/leksarodic/Documents/Aleksa/AI/pizza/404.html), which redirects unknown Pages routes back to the project root. This helps when someone opens an incorrect subpath or refreshes a non-root URL.
+
 ## Main files to know
 
 - [`src/main.js`](/Users/leksarodic/Documents/Aleksa/AI/pizza/src/main.js)

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Redirecting…</title>
+    <script>
+      (function redirectToProjectRoot() {
+        var path = window.location.pathname;
+        var segments = path.split('/').filter(Boolean);
+        var project = segments.length > 0 ? segments[0] : '';
+        var target = project ? '/' + project + '/' : '/';
+        var query = window.location.search || '';
+        var hash = window.location.hash || '';
+        window.location.replace(target + query + hash);
+      })();
+    </script>
+  </head>
+  <body>
+    Redirecting to the project root...
+  </body>
+</html>
